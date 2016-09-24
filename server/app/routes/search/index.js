@@ -24,7 +24,7 @@ router.post('/hotTrendsDetail/test', function(req, res, next) {
     res.send("Post request info");
 })
 
-router.post('/hotTrendsDetail/random', function(req, res, next) {
+router.get('/hotTrendsDetail/random', function(req, res, next) {
 
     googleTrends.hotTrendsDetail(req.params.countryCode)
         .then(function(results) {
@@ -89,13 +89,13 @@ router.post('/hotTrendsDetail/random', function(req, res, next) {
                 SummaryTool.getSortedSentences(content, 5, function(err, sorted_sentences) {
 
                     if (err) {
-                        res.send(results.rss.channel[0].item[random]['ht:news_item'][0]['ht:news_item_url'][0])
+                        res.json(results.rss.channel[0].item[random]['ht:news_item'][0]['ht:news_item_url'][0])
                     }
                     // console.log(sorted_sentences)
                     if (Array.isArray(sorted_sentences)) {
                         res.send(sorted_sentences.join(' '))
                     } else {
-                        res.send(sorted_sentences)
+                        res.json(sorted_sentences)
                     }
                 })
 

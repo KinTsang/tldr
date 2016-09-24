@@ -10,6 +10,10 @@ $web-font-path: "https://fonts.googleapis.com/css?family=News+Cycle:400,700" !de
 a[href], input[type='submit'], input[type='image'], label[for], select, td, button, .pointer {
        cursor: pointer;
 }
+
+.sidebar-nav-fixed {
+  margin-top: 8em
+}
 // Navbar =====================================================================
 
 .navbar {
