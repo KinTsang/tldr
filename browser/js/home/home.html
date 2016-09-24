@@ -1,0 +1,79 @@
+<section id="home">
+    <div class="clearfix">
+        <div class="row search">
+            <form class="form-inline global-search" role="form" name="searchForm" ng-submit="searching(searchCriteria.category, searchCriteria.criteria)">
+                <div class="form-group">
+                    <select ng-model=searchCriteria.category " name="category ">
+                      <option ng-repeat="item in category " value="{{item}} ">
+                        {{item}}
+                      </option>
+              </select>
+            <input ng-model="searchCriteria.criteria " class="form-control input " name="criteria " placeholder="Enter search terms ">
+        </div>
+        <button type="submit " class="btn btn-default "><span class="glyphicon glyphicon-search "></span>
+        <!-- </button> <a href="# ">Search Help</a> -->
+    </form>
+  </div>
+</div>
+
+<div class="container-fluid ">
+  <div class="row ">
+  <!-- beginning of table -->
+    <table class="col-md-3 table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>
+            Top 20 Searches
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="topic in result ">
+          <td ng-click="getSummary(topic) " class="active">{{topic.title}}</td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- beginning of expanded view -->
+
+<div class="col-md-9 " ng-if="showDetail">
+    <div class="row ">
+      <div class="col-md-8 ">
+        <h4><strong><a href="{{detail.url}} ">{{detail.title}}</a></strong></h4>
+      </div>
+    </div>
+    <div class="row ">
+      <div class="col-md-2 ">
+        <a href="# " class="thumbnail ">
+            <img src="http:{{detail.picture}} " alt="picture ">
+        </a>
+      </div>
+      <div class="col-md-10 ">
+        <p>
+          {{detail.tldrSummary}}
+        </p>
+        <p><a class="btn " href="{{detail.url}} ">Read more</a></p>
+      </div>
+    </div>
+    <div class="row ">
+      <div class="col-md-8 ">
+        <p></p>
+        <p>
+          <i class="icon-user "></i> by <a href="http://www.google.com/search?q={{detail.source}}&btnI">{{detail.source}}</a>
+          | <i class="icon-comment "></i> Estimated search: {{detail.traffic}}</a>
+ <!--          | <i class="icon-share "></i> <a href="# ">39 Shares</a>
+          | <i class="icon-tags "></i> Tags : <a href="# "><span class="label label-info ">Snipp</span></a>
+          <a href="# "><span class="label label-info ">Bootstrap</span></a>
+          <a href="# "><span class="label label-info ">UI</span></a>
+          <a href="# "><span class="label label-info ">growth</span></a> -->
+        </p>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+
+
+</div>
+</section>
