@@ -12,6 +12,11 @@ app.directive('sideBar', function(resultFactory, $rootScope) {
                 resultFactory.setSelectedResult(result);
                 $rootScope.$emit("CallParentMethod")
             }
+            scope.getTopRelated = resultFactory.getTopRelated;
+            scope.setAutoSearchSite = function(result){
+                resultFactory.setAutoSearchSite(result);
+                $rootScope.$emit("CallAutoSearch")
+            }
         }
     };
 

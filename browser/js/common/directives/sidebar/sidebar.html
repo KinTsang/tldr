@@ -15,6 +15,11 @@
                             <td ng-click="setSelected(topic) " class="active">{{topic.title}}</td>
                         </tr>
                     </tbody>
+                    <tbody>
+                        <tr ng-repeat="item in getTopRelated()">
+                            <td ng-click="setAutoSearchSite(item.name) " class="active"> {{item.name}}</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>

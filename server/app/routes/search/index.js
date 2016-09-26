@@ -24,6 +24,22 @@ router.post('/hotTrendsDetail/test', function(req, res, next) {
     res.send("Post request info");
 })
 
+router.post('/feelLucky/:criteria', function(req, res, next) {
+    googleTrends.topRelated(req.params.criteria, 'US')
+        .then(function(relatedEntities) {
+            console.log(relatedEntities);
+            res.send(relatedEntities)
+        })
+})
+
+router.get('/topRelated/:criteria', function(req, res, next) {
+    googleTrends.topRelated(req.params.criteria, 'US')
+        .then(function(topRelated) {
+            console.log(topRelated);
+            res.send(topRelated);
+        })
+})
+
 router.get('/hotTrendsDetail/random', function(req, res, next) {
 
     googleTrends.hotTrendsDetail(req.params.countryCode)
@@ -127,12 +143,17 @@ router.get('/hotTrendsDetail/:countryCode', function(req, res, next) {
 
 })
 
-router.post('/getSummary', function(req, res, next) {
-    var options = {
-        disableRedirects: true
-    }
+router.get('/autoSearch/:criteria', function(req, res, next) {
+    console.log('Got into autoSearch/:criteria')
 
-    fetchUrl(req.body['ht:news_item'][0]['ht:news_item_url'][0], options, function(error, response, body) {
+    var url = "http://www.google.com/search?q=" + req.params.criteria + "&btnI";
+    var options = {
+        // disableRedirects: true
+        maxRedirects: 10
+    }
+    console.log("Got into this website:", url)
+
+    fetchUrl(url, options, function(error, response, body) {
 
         if (error) {
             throw error
@@ -180,7 +201,7 @@ router.post('/getSummary', function(req, res, next) {
         SummaryTool.getSortedSentences(content, 5, function(err, sorted_sentences) {
 
             if (err) {
-                res.send(req.body['ht:news_item'][0]["ht:news_item_snippet"][0])
+                res.send("No Data Found")
             }
             // console.log(sorted_sentences)
             if (Array.isArray(sorted_sentences)) {
@@ -192,62 +213,74 @@ router.post('/getSummary', function(req, res, next) {
 
     })
 
-    // request(req.body['ht:news_item'][0]['ht:news_item_url'][0], function(error, response, body) {
+})
 
-    //     if (error) {
-    //         throw error
-    //     }
+router.post('/getSummary', function(req, res, next) {
+    var options = {
+        disableRedirects: true
+    }
 
-    //     var $ = cheerio.load(body, {
-    //         normalizeWhitespace: true,
-    //         withDomLvl1: true
-    //     });
+    fetchUrl(req.body['ht:news_item'][0]['ht:news_item_url'][0], options, function(error, response, body) {
 
-    //     var content = '';
-    //     var title = $('h1').text();
-    //     var dupCheckerArr = [];
+        if (error) {
+            throw error
+        }
 
-    //     function dupChecker(sentence) {
-    //         var dup = false;
+        var summaryLength = 4;
 
-    //         dupCheckerArr.forEach(function(ele) {
-    //             if (ele === sentence) {
-    //                 dup = true;
-    //             }
-    //         })
+        var $ = cheerio.load(body, {
+            normalizeWhitespace: true,
+            withDomLvl1: true
+        });
 
-    //         if (dup) {
-    //             return true;
-    //         } else {
-    //             dupCheckerArr.push(sentence);
-    //             return false;
-    //         }
-    //     }
+        var content = '';
+        var dupCheckerArr = [];
 
-    //     $('p').each(function() {
-    //         var link = $(this);
-    //         var text = link.text();
+        function dupChecker(sentence) {
+            var dup = false;
 
-    //         if (!dupChecker(text)) {
-    //             if (text.length > 100) {
-    //                 content += ' ';
-    //                 content += text;
-    //             }
-    //         }
+            dupCheckerArr.forEach(function(ele) {
+                if (ele === sentence) {
+                    dup = true;
+                }
+            })
 
-    //     })
+            if (dup) {
+                return true;
+            } else {
+                dupCheckerArr.push(sentence);
+                return false;
+            }
+        }
 
-    //     //TESTING USING SUMMARY-TOOL
-    //     SummaryTool.getSortedSentences(content, 5, function(err, sorted_sentences) {
+        $('p').each(function() {
+            var link = $(this);
+            var text = link.text();
 
-    //         if (err) {
-    //             res.send(req.body['ht:news_item'][0]["ht:news_item_snippet"][0])
-    //         }
+            if (!dupChecker(text)) {
+                if (text.length > 50) {
+                    content += ' ';
+                    content += text;
+                }
+            }
 
-    //         res.send(sorted_sentences.join(' '))
-    //     })
+        })
 
-    // })
+        //TESTING USING SUMMARY-TOOL
+        SummaryTool.getSortedSentences(content, summaryLength, function(err, sorted_sentences) {
+
+            if (err) {
+                res.send(req.body['ht:news_item'][0]["ht:news_item_snippet"][0])
+            }
+            // console.log(sorted_sentences)
+            if (Array.isArray(sorted_sentences)) {
+                res.send(sorted_sentences.join(' '))
+            } else {
+                res.send(sorted_sentences)
+            }
+        })
+
+    })
 
 })
 

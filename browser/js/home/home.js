@@ -17,24 +17,48 @@ app.controller('HomeCtrl', function($scope, HomeFactory, resultFactory, $rootSco
     $scope.category = ['topRelated', 'hotTrendsDetail', 'top30in30', 'allTopCharts'];
 
     $scope.searching = function(category, criteria) {
-        HomeFactory.searching(category, criteria)
-            .then(function(result) {
-                console.log(result.rss.channel[0].item)
-                var newsArr = result.rss.channel[0].item
 
-                // newsArr.map(function(iteration){
-                //   return iteration.toString();
-                // })
+        if (category === 'topRelated') {
+            HomeFactory.getTopRelated(category, criteria)
+                .then(function(result) {
+                    console.log("This is what getTopRelated returns", result);
+                    $scope.result = result;
+                    resultFactory.addtoTopRelated(result);
+                })
+        } else {
 
-                $scope.result = result.rss.channel[0].item
-                resultFactory.addtoResult(result.rss.channel[0].item)
 
-            })
+            HomeFactory.searching(category, criteria)
+                .then(function(result) {
+                    console.log(result.rss.channel[0].item)
+                    var newsArr = result.rss.channel[0].item
+
+                    $scope.result = result.rss.channel[0].item
+                    resultFactory.addtoResult(result.rss.channel[0].item)
+
+                })
+        }
     }
 
     $rootScope.$on("CallParentMethod", function() {
-       $scope.getSummary();
+        $scope.getSummary();
     });
+
+    $rootScope.$on('CallAutoSearch', function(){
+        $scope.autoSearch();
+    })
+
+    $scope.autoSearch = function(topic){
+        var topic = topic || resultFactory.getSelectedInput();
+
+        HomeFactory.autoSearch(topic)
+        .then(function(result){
+            console.log("This is the result of the auto search", result);
+            $scope.detail.tldrSummary = result;
+
+            $scope.showDetail = true;
+        })
+    }
 
     $scope.getSummary = function() {
 
@@ -91,6 +115,18 @@ app.factory('HomeFactory', function($http) {
         return text ? String(text).replace(/<[^>]+>/gm, '') : '';
     }
 
+    obj.getTopRelated = function(category, criteria) {
+        console.log("ROUTE! /api/seach/topRelated/" + criteria);
+        return $http.get('/api/search/topRelated/' + criteria)
+            .then((result) => result.data)
+    }
+
+    obj.autoSearch = function(criteria){
+        console.log("ROUTE! /api/search/autoSearch/" + criteria);
+        return $http.get('/api/search/autoSearch/' + criteria)
+        .then((result) => result.data)
+    }
+
     return obj;
 
 })
@@ -98,6 +134,8 @@ app.factory('HomeFactory', function($http) {
 app.factory('resultFactory', function() {
     var result = [];
     var selectedResult = null;
+    var topRelated = []
+    var selectedInput = null;
 
     return {
         addtoResult: function(resultToBeAdded) {
@@ -112,6 +150,23 @@ app.factory('resultFactory', function() {
         setSelectedResult: function(resultSelected) {
             selectedResult = resultSelected;
             // console.log("This is the setSelectedResult from result factory:", selectedResult)
+        },
+        addtoTopRelated: function(topRelatedInput) {
+            for (var key in topRelatedInput[0]) {
+                topRelated.push({
+                    name: key,
+                    correlation: topRelatedInput[key]
+                })
+            }
+        },
+        getTopRelated: function() {
+            return topRelated;
+        },
+        setAutoSearchSite: function(inputSelected){
+            selectedInput = inputSelected;
+        },
+        getSelectedInput: function(){
+            return selectedInput;
         }
     }
 })
